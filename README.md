@@ -9,8 +9,9 @@ clone此仓库, 确保本地安装有`Firefox`, `python3`.
 安装依赖:
 
 ```shell
-pip3 install selenium #模拟浏览器操作
-pip3 install ddddocr  #识别验证码
+pip3 install selenium # 模拟浏览器操作
+pip3 install ddddocr  # 识别验证码
+pip3 install openpyxl # 表格操作
 pip3 install requests
 ```
 
@@ -30,18 +31,14 @@ firefox.exe -marionette -start-debugger-server 2828
 
 > 差不多是1s查询一个.
 
-最终结果将写入`success.json`, 但由于本地ocr识别验证码的不确定性, 加上网络的不稳定性, 一些序列号的结果将无法被查询到.
+每次查询完毕, 成功的结果将以`json`的格式保存至`outputs`文件夹, 失败的结果将保存至`error.xlsx`, 
 
-但无需担心, 失败的序列号将以列表的变量类型写入`error`文件, 只需打开此文件复制内容后, 替换`app.py`第十一行的`ids`变量, 再次运行即可.
+只需将`error.xlsx`重命名为`base.xlsx`, 再重新运行`app.py`即可.
 
-> 注意再次运行前将`success.json`内的数据进行转移保存.
+在查完(某次运行完发现`error.xlsx`为空或是发现剩下的序列号都无效时)后, 进入`outputs`文件夹, 运行`plus.py`即可将所有`json文件`合并导出至`all.xlsx`.
 
 ## 其他
 
 本地验证码的识别实现:
 
 [sml2h3/ddddocr](https://github.com/sml2h3/ddddocr)
-
-json转excel表格:
-
-[Online JSON to EXCEL Converter](https://products.aspose.app/cells/conversion/json-to-xlsx)

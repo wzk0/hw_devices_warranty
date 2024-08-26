@@ -5,10 +5,26 @@ from selenium.webdriver.firefox.service import Service
 from json import dumps
 from time import sleep
 from requests import get
+import openpyxl
+import ctypes
+import random
+import os
+import string
+import shutil
 
 ocr = ddddocr.DdddOcr()
 # 序列号列表
-ids = ['3BH0224521011550', '2NP0224618049055']
+base = openpyxl.load_workbook('base.xlsx')
+# 选择活动的工作表
+sheet = base.active
+
+# 读取第一列的所有数据
+ids = []
+for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=1):
+    for cell in row:
+        ids.append(cell.value)
+base.close()
+
 # 输出
 error_ids = []
 success_ids = []
@@ -22,10 +38,20 @@ def error(reason, _id):
 
 # 将error_ids与success_ids写入文件
 def save():
-    with open('error', 'w') as f:
-        f.write(str(error_ids))
-    with open('success.json', 'w') as f:
+    error_book = openpyxl.Workbook()
+    sheet = error_book.active
+    for index, value in enumerate(error_ids, start=1):
+        sheet.cell(row=index, column=1, value=value)
+    error_book.save('error.xlsx')
+    error_book.close()
+    with open('success.json', 'w', encoding='utf-8') as f:
         f.write(dumps(success_ids, ensure_ascii=False))
+    if not os.path.exists('outputs'):
+        os.makedirs('outputs')
+    shutil.move('success.json', os.path.join('outputs', ''.join(random.choices(string.ascii_letters + string.digits, k=8)) + '.json'))
+    ctypes.windll.user32.MessageBoxW(0,
+                                     "查询完毕！错误序列号已写入 error.xlsx，请在重命名 error.xlsx 为 base.xlsx 后重新运行程序\n【此轮成功查询个数：%s 失败个数：%s】" % (
+                                         len(success_ids), len(error_ids)), "提示", 0x40 | 0x1)
 
 
 GECKODRIVER_PATH = r'./geckodriver.exe'
